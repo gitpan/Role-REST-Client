@@ -1,0 +1,41 @@
+---
+abstract: 'REST Client Role'
+author:
+  - 'Kaare Rasmussen <kaare at cpan dot net>'
+build_requires:
+  Data::Serializer: 0
+  Data::Serializer::JSON: 0
+  Data::Serializer::XML::Simple: 0
+  Data::Serializer::YAML: 0
+  File::Find: 0
+  File::Temp: 0
+  JSON: 2.00
+  Module::Build: 0.3601
+  Test::More: 0.88
+  XML::Simple: 0
+  YAML: 0
+  strict: 0
+  warnings: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.30
+  Module::Build: 0.3601
+dynamic_config: 0
+generated_by: 'Dist::Zilla version 4.300006, CPAN::Meta::Converter version 2.113640'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Role-REST-Client
+requires:
+  Carp: 0
+  Data::Serializer: 0
+  HTTP::Tiny: 0
+  Moose: 0
+  Moose::Role: 0
+  Moose::Util::TypeConstraints: 0
+  Try::Tiny: 0
+  URI::Escape: 0
+  perl: 5.010
+resources:
+  repository: git://github.com/kaare/Role-REST.Client.git
+version: 0.01
