@@ -1,6 +1,6 @@
 package Role::REST::Client::Response;
 {
-  $Role::REST::Client::Response::VERSION = '0.01';
+  $Role::REST::Client::Response::VERSION = '0.02';
 }
 
 use 5.010;
@@ -36,7 +36,7 @@ Role::REST::Client::Response
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 NAME
 
