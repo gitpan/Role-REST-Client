@@ -9,43 +9,45 @@ use ExtUtils::MakeMaker 6.30;
 
 
 my %WriteMakefileArgs = (
-  'ABSTRACT' => 'REST Client Role',
-  'AUTHOR' => 'Kaare Rasmussen <kaare at cpan dot net>',
-  'BUILD_REQUIRES' => {
-    'Data::Serializer' => '0',
-    'Data::Serializer::JSON' => '0',
-    'Data::Serializer::XML::Simple' => '0',
-    'Data::Serializer::YAML' => '0',
-    'File::Find' => '0',
-    'File::Temp' => '0',
-    'JSON' => '2.00',
-    'Module::Build' => '0.3601',
-    'Test::More' => '0.88',
-    'XML::Simple' => '0',
-    'YAML' => '0'
+  "ABSTRACT" => "REST Client Role",
+  "AUTHOR" => "Kaare Rasmussen <kaare at cpan dot net>",
+  "BUILD_REQUIRES" => {
+    "Data::Serializer" => 0,
+    "Data::Serializer::JSON" => 0,
+    "Data::Serializer::XML::Simple" => 0,
+    "Data::Serializer::YAML" => 0,
+    "File::Find" => 0,
+    "File::Temp" => 0,
+    "JSON" => "2.00",
+    "Module::Build" => "0.3601",
+    "Test::More" => "0.88",
+    "XML::Simple" => 0,
+    "YAML" => 0,
+    "strict" => 0,
+    "warnings" => 0
   },
-  'CONFIGURE_REQUIRES' => {
-    'ExtUtils::MakeMaker' => '6.30',
-    'Module::Build' => '0.3601'
+  "CONFIGURE_REQUIRES" => {
+    "ExtUtils::MakeMaker" => "6.30",
+    "Module::Build" => "0.3601"
   },
-  'DISTNAME' => 'Role-REST-Client',
-  'EXE_FILES' => [],
-  'LICENSE' => 'perl',
-  'NAME' => 'Role::REST::Client',
-  'PREREQ_PM' => {
-    'Carp' => '0',
-    'Data::Serializer' => '0',
-    'HTTP::Tiny' => '0',
-    'Moose' => '0',
-    'Moose::Role' => '0',
-    'Moose::Util::TypeConstraints' => '0',
-    'MooseX::Traits' => '0',
-    'Try::Tiny' => '0',
-    'URI::Escape' => '0'
+  "DISTNAME" => "Role-REST-Client",
+  "EXE_FILES" => [],
+  "LICENSE" => "perl",
+  "NAME" => "Role::REST::Client",
+  "PREREQ_PM" => {
+    "Carp" => 0,
+    "Data::Serializer" => 0,
+    "HTTP::Tiny" => 0,
+    "Moose" => 0,
+    "Moose::Role" => 0,
+    "Moose::Util::TypeConstraints" => 0,
+    "MooseX::Traits" => 0,
+    "Try::Tiny" => 0,
+    "URI::Escape" => 0
   },
-  'VERSION' => '0.02',
-  'test' => {
-    'TESTS' => 't/*.t'
+  "VERSION" => "0.03",
+  "test" => {
+    "TESTS" => "t/*.t"
   }
 );
 

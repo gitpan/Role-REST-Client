@@ -1,6 +1,6 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.02';
+  $Role::REST::Client::VERSION = '0.03';
 }
 
 use 5.010;
@@ -37,7 +37,7 @@ has _ua => (
 		return $self->{ua};
 	},
 );
-has '_headers' => (
+has 'httpheaders' => (
 	traits    => ['Hash'],
 	is        => 'ro',
 	isa       => 'HashRef[Str]',
@@ -74,9 +74,10 @@ sub _call {
 	# If data is a scalar, call endpoint with data as content (POST w/parameters)
 	# Otherwise, encode data
 	$self->set_header('content-type', $self->_serializer->content_type);
-	my %options = (headers => $self->_headers);
+	my %options = (headers => $self->httpheaders);
 	$options{content} = ref $data ? $self->_serializer->serialize($data) : $data if defined $data;
 	my $res = $self->_ua->request($method, $uri, \%options);
+	$self->clear_headers;
 	# Return an error if status 5XX
 	return Role::REST::Client::Response->new(
 		code => $res->{status},
@@ -100,7 +101,6 @@ sub _call {
 
 sub get {
 	my ($self, $endpoint, $data, $args) = @_;
-	$self->clear_headers;
 	my $uri = $endpoint;
 	if (my %data = %{ $data || {} }) {
 		$uri .= '?' . join '&', map { uri_escape($_) . '=' . uri_escape($data{$_})} keys %data;
@@ -110,7 +110,6 @@ sub get {
 
 sub post {
 	my $self = shift;
-	$self->clear_headers;
 	my ($endpoint, $data, $args) = @_;
 	if ($self->type =~ /urlencoded/ and my %data = %{ $data }) {
 		my $content = join '&', map { uri_escape($_) . '=' . uri_escape($data{$_})} keys %data;
@@ -121,19 +120,16 @@ sub post {
 
 sub put {
 	my $self = shift;
-	$self->clear_headers;
 	return $self->_call('PUT', @_);
 }
 
 sub delete {
 	my $self = shift;
-	$self->clear_headers;
 	return $self->_call('DELETE', @_);
 }
 
 sub options {
 	my $self = shift;
-	$self->clear_headers;
 	return $self->_call('OPTIONS', @_);
 }
 
@@ -149,7 +145,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.02
+version 0.03
 
 =head1 SYNOPSIS
 
