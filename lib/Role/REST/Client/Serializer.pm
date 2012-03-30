@@ -1,8 +1,8 @@
 package Role::REST::Client::Serializer;
 {
-  $Role::REST::Client::Serializer::VERSION = '0.03';
+  $Role::REST::Client::Serializer::VERSION = '0.04';
 }
-use 5.010;
+
 use Try::Tiny;
 use Moose;
 use Moose::Util::TypeConstraints;
@@ -95,7 +95,7 @@ Role::REST::Client::Serializer
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 AUTHOR
 

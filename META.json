@@ -35,8 +35,7 @@
             "Moose::Util::TypeConstraints" : 0,
             "MooseX::Traits" : 0,
             "Try::Tiny" : 0,
-            "URI::Escape" : 0,
-            "perl" : "5.010"
+            "URI::Escape" : 0
          }
       },
       "test" : {
@@ -64,6 +63,6 @@
          "web" : "http://github.com/kaare/Role-REST-Client"
       }
    },
-   "version" : "0.03"
+   "version" : "0.04"
 }
 

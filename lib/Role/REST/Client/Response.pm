@@ -1,9 +1,8 @@
 package Role::REST::Client::Response;
 {
-  $Role::REST::Client::Response::VERSION = '0.03';
+  $Role::REST::Client::Response::VERSION = '0.04';
 }
 
-use 5.010;
 use Moose;
 
 has 'code' => (
@@ -36,7 +35,7 @@ Role::REST::Client::Response
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 NAME
 

@@ -1,9 +1,8 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.03';
+  $Role::REST::Client::VERSION = '0.04';
 }
 
-use 5.010;
 use Moose::Role;
 use Moose::Util::TypeConstraints;
 use HTTP::Tiny;
@@ -145,7 +144,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 SYNOPSIS
 
