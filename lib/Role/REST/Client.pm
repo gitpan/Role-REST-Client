@@ -1,6 +1,6 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.04';
+  $Role::REST::Client::VERSION = '0.05';
 }
 
 use Moose::Role;
@@ -51,17 +51,31 @@ has 'httpheaders' => (
 
 no Moose::Util::TypeConstraints;
 
+sub _rest_response_class { 'Role::REST::Client::Response' }
+
+sub _new_rest_response {
+    my ($self, @args) = @_;
+    $self->_rest_response_class->new(@args);
+}
+
+sub _serializer_class { 'Role::REST::Client::Serializer' }
+
+sub _new_serializer {
+    my ($self, @args) = @_;
+    $self->_serializer_class->new(@args);
+}
+
 sub _serializer {
 	my ($self, $type) = @_;
 	$type ||= $self->type;
 	$type =~ s/;\s*?charset=.+$//i; #remove stuff like ;charset=utf8
 	try {
-		$self->{serializer}{$type} ||= Role::REST::Client::Serializer->new(type => $type);
+		$self->{serializer}{$type} ||= $self->_new_serializer(type => $type);
 	}
 	catch {
 		# Deal with real life content types like "text/xml;charset=ISO-8859-1"
 		warn "No serializer available for " . $type . " content. Trying default " . $self->type;
-		$self->{serializer}{$type} = Role::REST::Client::Serializer->new(type => $self->type);
+		$self->{serializer}{$type} = $self->_new_serializer(type => $self->type);
 	};
 	return $self->{serializer}{$type};
 }
@@ -78,7 +92,7 @@ sub _call {
 	my $res = $self->_ua->request($method, $uri, \%options);
 	$self->clear_headers;
 	# Return an error if status 5XX
-	return Role::REST::Client::Response->new(
+	return $self->_new_rest_response(
 		code => $res->{status},
 		response => $res,
 		error => $res->{reason},
@@ -91,7 +105,7 @@ sub _call {
 	my $content;
 	$content = $deserializer->deserialize($res->{content}) if $deserializer && $res->{content};
 	$content ||= {};
-	return Role::REST::Client::Response->new(
+    return $self->_new_rest_response(
 		code => $res->{status},
 		response => $res,
 		data => $content,
@@ -144,7 +158,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.04
+version 0.05
 
 =head1 SYNOPSIS
 
@@ -230,7 +244,7 @@ args - the optional argument parameter can have these entries
 
 	my $res = $self->post('foo/bar/baz', {foo => 'bar'}, {deserializer => 'application/yaml'});
 
-All methods return a L<Role::REST::Client::Response> object.
+All methods return a response object dictated by _rest_response_class. Set to L<Role::REST::Client::Response> by default.
 
 =head1 ATTRIBUTES
 
