@@ -38,4 +38,4 @@ requires:
   URI::Escape: 0
 resources:
   repository: git://github.com/kaare/Role-REST-Client.git
-version: 0.05
+version: 0.06
