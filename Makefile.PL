@@ -12,8 +12,8 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "REST Client Role",
   "AUTHOR" => "Kaare Rasmussen <kaare at cpan dot net>",
   "BUILD_REQUIRES" => {
-    "Data::Serializer" => 0,
     "Data::Serializer::JSON" => 0,
+    "Data::Serializer::Raw" => 0,
     "Data::Serializer::XML::Simple" => 0,
     "Data::Serializer::YAML" => 0,
     "File::Find" => 0,
@@ -38,7 +38,7 @@ my %WriteMakefileArgs = (
   "NAME" => "Role::REST::Client",
   "PREREQ_PM" => {
     "Carp" => 0,
-    "Data::Serializer" => 0,
+    "Data::Serializer::Raw" => 0,
     "HTTP::Headers" => 0,
     "HTTP::Response" => 0,
     "HTTP::Status" => 0,
@@ -50,7 +50,7 @@ my %WriteMakefileArgs = (
     "Try::Tiny" => 0,
     "URI::Escape" => 0
   },
-  "VERSION" => "0.08",
+  "VERSION" => "0.09",
   "test" => {
     "TESTS" => "t/*.t"
   }

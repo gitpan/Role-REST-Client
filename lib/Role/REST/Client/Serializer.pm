@@ -1,13 +1,13 @@
 package Role::REST::Client::Serializer;
 {
-  $Role::REST::Client::Serializer::VERSION = '0.08';
+  $Role::REST::Client::Serializer::VERSION = '0.09';
 }
 
 use Try::Tiny;
 use Moose;
 use Moose::Util::TypeConstraints;
 
-use Data::Serializer;
+use Data::Serializer::Raw;
 
 has 'type' => (
     isa => enum ([qw{application/json application/xml application/yaml application/x-www-form-urlencoded}]),
@@ -16,7 +16,7 @@ has 'type' => (
 );
 no Moose::Util::TypeConstraints;
 has 'serializer' => (
-	isa => 'Data::Serializer',
+	isa => 'Data::Serializer::Raw',
 	is => 'ro',
 	default => \&_set_serializer,
 	lazy => 1,
@@ -46,7 +46,7 @@ sub _set_serializer {
 	my $module = $modules{$self->type}{module};
 	return $module if $module eq 'FORM';
 
-	return Data::Serializer->new(
+	return Data::Serializer::Raw->new(
 		serializer => $module,
 	);
 }
@@ -62,7 +62,7 @@ sub serialize {
 
 	my $result;
 	try {
-		$result = $self->serializer->raw_serialize($data)
+		$result = $self->serializer->serialize($data)
 	} catch {
 		warn "Couldn't serialize data with " . $self->type;
 	};
@@ -76,7 +76,7 @@ sub deserialize {
 
 	my $result;
 	try {
-		$result = $self->serializer->raw_deserialize($data);
+		$result = $self->serializer->deserialize($data);
 	} catch {
 		warn "Couldn't deserialize data with " . $self->type;
 	};
@@ -95,7 +95,7 @@ Role::REST::Client::Serializer
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 AUTHOR
 

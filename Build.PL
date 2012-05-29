@@ -7,8 +7,8 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   "build_requires" => {
-    "Data::Serializer" => 0,
     "Data::Serializer::JSON" => 0,
+    "Data::Serializer::Raw" => 0,
     "Data::Serializer::XML::Simple" => 0,
     "Data::Serializer::YAML" => 0,
     "File::Find" => 0,
@@ -32,14 +32,14 @@ my %module_build_args = (
     "Kaare Rasmussen <kaare at cpan dot net>"
   ],
   "dist_name" => "Role-REST-Client",
-  "dist_version" => "0.08",
+  "dist_version" => "0.09",
   "license" => "perl",
   "module_name" => "Role::REST::Client",
   "recommends" => {},
   "recursive_test_files" => 1,
   "requires" => {
     "Carp" => 0,
-    "Data::Serializer" => 0,
+    "Data::Serializer::Raw" => 0,
     "HTTP::Headers" => 0,
     "HTTP::Response" => 0,
     "HTTP::Status" => 0,

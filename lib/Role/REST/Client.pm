@@ -1,6 +1,6 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.08';
+  $Role::REST::Client::VERSION = '0.09';
 }
 
 use Moose::Role;
@@ -121,6 +121,11 @@ sub _serializer {
 	return $self->{serializer}{$type};
 }
 
+sub do_request {
+        my ($self, $method, $uri, $opts) = @_;
+        return $self->user_agent->request($method, $uri, $opts);
+}
+
 sub _call {
 	my ($self, $method, $endpoint, $data, $args) = @_;
 	my $uri = $self->server.$endpoint;
@@ -130,7 +135,10 @@ sub _call {
 	$self->set_header('content-type', $self->type);
 	my %options = (headers => $self->httpheaders);
 	$options{content} = ref $data ? $self->_serializer->serialize($data) : $data if defined $data;
-	my $res = $self->_handle_response( $self->user_agent->request($method, $uri, \%options) );
+        if ( defined(my $clength = $args->{'req-content-length'}) ) {
+                $options{headers}{'content-length'} = $clength;
+        }
+	my $res = $self->_handle_response( $self->do_request($method, $uri, \%options) );
 	$self->httpheaders($self->persistent_headers) unless $args->{preserve_headers};
 	# Return an error if status 5XX
 	return $self->_new_rest_response($res) if $res->code > 499;
@@ -161,6 +169,8 @@ sub post {
 	my ($endpoint, $data, $args) = @_;
 	if ($self->type =~ /urlencoded/ and my %data = %{ $data }) {
 		my $content = join '&', map { uri_escape($_) . '=' . uri_escape($data{$_})} keys %data;
+                $args ||= {};
+                $args->{'req-content-length'} = length $content;
 		return $self->_call('POST', $endpoint, $content, $args);
 	}
 	return $self->_call('POST', @_);
@@ -193,7 +203,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
