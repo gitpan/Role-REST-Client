@@ -1,6 +1,6 @@
 package Role::REST::Client::Response;
 {
-  $Role::REST::Client::Response::VERSION = '0.07';
+  $Role::REST::Client::Response::VERSION = '0.08';
 }
 
 use Moose;
@@ -10,16 +10,19 @@ has 'code' => (
     is  => 'ro',
 );
 has 'response' => (
-    isa => 'HashRef',
+    isa => 'HTTP::Response',
     is  => 'ro',
 );
 has 'error' => (
     isa => 'Str',
     is  => 'ro',
 );
-has 'data' => (
-    isa => 'HashRef | ArrayRef',
-    is  => 'ro',
+has 'data_callback' => (
+    init_arg => 'data',
+    traits  => ['Code'],
+    isa => 'CodeRef', is  => 'ro',
+    default => sub { sub { {} } },
+    handles => { data => 'execute' },
 );
 
 __PACKAGE__->meta->make_immutable;
@@ -35,7 +38,7 @@ Role::REST::Client::Response
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 NAME
 
@@ -49,7 +52,7 @@ Returns the http status code of the request
 
 =head2 response
 
-Returns the raw HTTP::Tiny response. Use this if you need more information than status and content.
+Returns the a HTTP::Response object. Use this if you need more information than status and content.
 
 =head2 error
 
