@@ -32,7 +32,7 @@ my %module_build_args = (
     "Kaare Rasmussen <kaare at cpan dot net>"
   ],
   "dist_name" => "Role-REST-Client",
-  "dist_version" => "0.09",
+  "dist_version" => "0.10",
   "license" => "perl",
   "module_name" => "Role::REST::Client",
   "recommends" => {},

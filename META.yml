@@ -43,4 +43,4 @@ requires:
   URI::Escape: 0
 resources:
   repository: git://github.com/kaare/Role-REST-Client.git
-version: 0.09
+version: 0.10

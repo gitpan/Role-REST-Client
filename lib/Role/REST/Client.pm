@@ -1,6 +1,6 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.09';
+  $Role::REST::Client::VERSION = '0.10';
 }
 
 use Moose::Role;
@@ -30,15 +30,15 @@ has 'type' => (
 has clientattrs => (isa => 'HashRef', is => 'ro', default => sub {return {} });
 
 has user_agent => (
-        isa => duck_type([qw(request)]),
+	isa => duck_type([qw(request)]),
 	is => 'ro',
 	lazy => 1,
-        builder => '_build_user_agent',
+	builder => '_build_user_agent',
 );
 
 sub _build_user_agent {
-        my $self = shift;
-        return HTTP::Tiny->new(%{$self->clientattrs});
+	my $self = shift;
+	return HTTP::Tiny->new(%{$self->clientattrs});
 }
 
 has 'persistent_headers' => (
@@ -67,8 +67,8 @@ has 'httpheaders' => (
 );
 
 has serializer_class => (
-        isa => 'ClassName', is => 'ro',
-        default => 'Role::REST::Client::Serializer',
+	isa => 'ClassName', is => 'ro',
+	default => 'Role::REST::Client::Serializer',
 );
 
 no Moose::Util::TypeConstraints;
@@ -76,34 +76,28 @@ no Moose::Util::TypeConstraints;
 sub _rest_response_class { 'Role::REST::Client::Response' }
 
 sub _handle_response {
-          my ( $self, $res ) = @_;
-          if ( ref $res eq 'HASH' ) {
-                  my $code = $res->{'status'};
-                  return HTTP::Response->new(
-                          $code,
-                          $res->{'reason'} || status_message($code),
-                          HTTP::Headers->new(%{$res->{'headers'}}),
-                          $res->{'content'},
-                  );
-          } else {
-                  return $res;
-          }
+	my ( $self, $res ) = @_;
+	if ( ref $res eq 'HASH' ) {
+		my $code = $res->{'status'};
+		return HTTP::Response->new(
+			$code,
+			$res->{'reason'} || status_message($code),
+			HTTP::Headers->new(%{$res->{'headers'}}),
+			$res->{'content'},
+		);
+	} else {
+		return $res;
+	}
 }
 
 sub _new_rest_response {
-        my ($self, $res, $deserializer_cb) = @_;
-        my %args = (
-                code => $res->code,
-                response => $res,
-                error => $res->message,
-                data => $deserializer_cb || sub {},
-        );
-        return $self->_rest_response_class->new(%args);
+	my ($self, @args) = @_;
+	return $self->_rest_response_class->new(@args);
 }
 
 sub new_serializer {
-        my ($self, @args) = @_;
-        $self->serializer_class->new(@args);
+	my ($self, @args) = @_;
+	$self->serializer_class->new(@args);
 }
 
 sub _serializer {
@@ -122,8 +116,8 @@ sub _serializer {
 }
 
 sub do_request {
-        my ($self, $method, $uri, $opts) = @_;
-        return $self->user_agent->request($method, $uri, $opts);
+	my ($self, $method, $uri, $opts) = @_;
+	return $self->user_agent->request($method, $uri, $opts);
 }
 
 sub _call {
@@ -134,62 +128,69 @@ sub _call {
 	# Otherwise, encode data
 	$self->set_header('content-type', $self->type);
 	my %options = (headers => $self->httpheaders);
-	$options{content} = ref $data ? $self->_serializer->serialize($data) : $data if defined $data;
-        if ( defined(my $clength = $args->{'req-content-length'}) ) {
-                $options{headers}{'content-length'} = $clength;
-        }
+	if ( defined $data ) {
+		$options{content} = ref $data ? $self->_serializer->serialize($data) : $data;
+		$options{'headers'}{'content-length'} = length($options{'content'});
+	}
 	my $res = $self->_handle_response( $self->do_request($method, $uri, \%options) );
 	$self->httpheaders($self->persistent_headers) unless $args->{preserve_headers};
 	# Return an error if status 5XX
-	return $self->_new_rest_response($res) if $res->code > 499;
+	return $self->_new_rest_response(
+		code => $res->code,
+		response => $res,
+		error => $res->message,
+        ) if $res->code > 499;
 
-        my $deserializer_cb = sub {
-	        # Try to find a serializer for the result content
-                my $content_type = $args->{deserializer} || $res->header('Content-Type');
-	        my $deserializer = $self->_serializer($content_type);
-	        # Try to deserialize
-	        my $content = $res->decoded_content;
-	        $content = $deserializer->deserialize($content) if $deserializer && $content;
-	        $content ||= {};
-        };
-        return $self->_new_rest_response($res, $deserializer_cb);
+	my $deserializer_cb = sub {
+		# Try to find a serializer for the result content
+		my $content_type = $args->{deserializer} || $res->header('Content-Type');
+		my $deserializer = $self->_serializer($content_type);
+		# Try to deserialize
+		my $content = $res->decoded_content;
+		$content = $deserializer->deserialize($content) if $deserializer && $content;
+		$content ||= {};
+	};
+	return $self->_new_rest_response(
+		code => $res->code,
+		response => $res,
+		data => $deserializer_cb,
+        );
 }
 
-sub get {
-	my ($self, $endpoint, $data, $args) = @_;
+sub _urlencode_data {
+	my ($self, $data) = @_;
+	return join '&', map { uri_escape($_) . '=' . uri_escape($data->{$_})} keys %$data;
+}
+
+sub _request_with_query {
+	my ($self, $method, $endpoint, $data, $args) = @_;
 	my $uri = $endpoint;
-	if (my %data = %{ $data || {} }) {
-		$uri .= '?' . join '&', map { uri_escape($_) . '=' . uri_escape($data{$_})} keys %data;
+	if ($data && scalar keys %$data) {
+		$uri .= '?' . $self->_urlencode_data($data);
 	}
-	return $self->_call('GET', $uri, undef, $args);
+	return $self->_call($method, $uri, undef, $args);
 }
 
-sub post {
-	my $self = shift;
-	my ($endpoint, $data, $args) = @_;
-	if ($self->type =~ /urlencoded/ and my %data = %{ $data }) {
-		my $content = join '&', map { uri_escape($_) . '=' . uri_escape($data{$_})} keys %data;
-                $args ||= {};
-                $args->{'req-content-length'} = length $content;
-		return $self->_call('POST', $endpoint, $content, $args);
+sub get { return shift->_request_with_query('GET', @_) }
+
+sub head { return shift->_request_with_query('HEAD', @_) }
+
+sub delete { return shift->_request_with_query('DELETE', @_) }
+
+sub _request_with_body {
+	my ($self, $method, $endpoint, $data, $args) = @_;
+	my $content = $data;
+	if ( $self->type =~ /urlencoded/ ) {
+		$content = ( $data && scalar keys %$data ) ? $self->_urlencode_data($data) : q{};
 	}
-	return $self->_call('POST', @_);
+	return $self->_call($method, $endpoint, $content, $args);
 }
 
-sub put {
-	my $self = shift;
-	return $self->_call('PUT', @_);
-}
+sub post { return shift->_request_with_body('POST', @_) }
 
-sub delete {
-	my $self = shift;
-	return $self->_call('DELETE', @_);
-}
+sub put { return shift->_request_with_body('PUT', @_) }
 
-sub options {
-	my $self = shift;
-	return $self->_call('OPTIONS', @_);
-}
+sub options { return shift->_request_with_body('OPTIONS', @_) }
 
 1;
 
@@ -203,7 +204,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 SYNOPSIS
 
@@ -250,6 +251,8 @@ Role::REST::Client will handle encoding and decoding when using the four HTTP ve
 	PUT
 	POST
 	DELETE
+	OPTIONS
+	HEAD
 
 Currently Role::REST::Client supports these encodings
 
@@ -272,8 +275,10 @@ Role::REST::Client implements the standard HTTP 1.1 verbs as methods
 
 	post
 	get
+	head
 	put
 	delete
+	options
 
 All methods take these parameters
 

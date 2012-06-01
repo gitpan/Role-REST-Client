@@ -1,33 +1,35 @@
 package Role::REST::Client::Response;
 {
-  $Role::REST::Client::Response::VERSION = '0.09';
+  $Role::REST::Client::Response::VERSION = '0.10';
 }
 
 use Moose;
 
 has 'code' => (
-    isa => 'Int',
-    is  => 'ro',
+	isa => 'Int',
+	is  => 'ro',
 );
 has 'response' => (
-    isa => 'HTTP::Response',
-    is  => 'ro',
+	isa => 'HTTP::Response',
+	is  => 'ro',
 );
 has 'error' => (
-    isa => 'Str',
-    is  => 'ro',
+	isa => 'Str',
+	is  => 'ro',
+	predicate => 'failed',
 );
 has 'data_callback' => (
-    init_arg => 'data',
-    traits  => ['Code'],
-    isa => 'CodeRef', is  => 'ro',
-    default => sub { sub { {} } },
-    handles => { data => 'execute' },
+	init_arg => 'data',
+	traits  => ['Code'],
+	isa => 'CodeRef', is  => 'ro',
+	default => sub { sub { {} } },
+	handles => { data => 'execute' },
 );
 
 __PACKAGE__->meta->make_immutable;
 
 1;
+
 
 
 =pod
@@ -38,7 +40,7 @@ Role::REST::Client::Response
 
 =head1 VERSION
 
-version 0.09
+version 0.10
 
 =head1 NAME
 
@@ -57,6 +59,10 @@ Returns the a HTTP::Response object. Use this if you need more information than 
 =head2 error
 
 Returns the returned reason from HTTP::Tiny where the status is 500 or higher. 
+
+=head2 failed
+
+True if the request didn't succeed.
 
 =head2 data
 
@@ -94,3 +100,4 @@ the same terms as the Perl 5 programming language system itself.
 
 
 __END__
+
