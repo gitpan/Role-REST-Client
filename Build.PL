@@ -17,6 +17,7 @@ my %module_build_args = (
     "JSON" => "2.00",
     "Module::Build" => "0.3601",
     "MooseX::Declare" => 0,
+    "Test::Deep" => 0,
     "Test::More" => "0.88",
     "XML::Simple" => 0,
     "YAML" => 0,
@@ -32,7 +33,7 @@ my %module_build_args = (
     "Kaare Rasmussen <kaare at cpan dot net>"
   ],
   "dist_name" => "Role-REST-Client",
-  "dist_version" => "0.10",
+  "dist_version" => "0.11",
   "license" => "perl",
   "module_name" => "Role::REST::Client",
   "recommends" => {},

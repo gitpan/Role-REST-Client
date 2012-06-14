@@ -13,6 +13,7 @@ build_requires:
   JSON: 2.00
   Module::Build: 0.3601
   MooseX::Declare: 0
+  Test::Deep: 0
   Test::More: 0.88
   XML::Simple: 0
   YAML: 0
@@ -22,7 +23,7 @@ configure_requires:
   ExtUtils::MakeMaker: 6.30
   Module::Build: 0.3601
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300016, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 4.300017, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -43,4 +44,4 @@ requires:
   URI::Escape: 0
 resources:
   repository: git://github.com/kaare/Role-REST-Client.git
-version: 0.10
+version: 0.11

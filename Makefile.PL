@@ -22,6 +22,7 @@ my %WriteMakefileArgs = (
     "JSON" => "2.00",
     "Module::Build" => "0.3601",
     "MooseX::Declare" => 0,
+    "Test::Deep" => 0,
     "Test::More" => "0.88",
     "XML::Simple" => 0,
     "YAML" => 0,
@@ -50,7 +51,7 @@ my %WriteMakefileArgs = (
     "Try::Tiny" => 0,
     "URI::Escape" => 0
   },
-  "VERSION" => "0.10",
+  "VERSION" => "0.11",
   "test" => {
     "TESTS" => "t/*.t"
   }
