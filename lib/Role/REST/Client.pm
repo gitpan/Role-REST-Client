@@ -1,6 +1,6 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.11';
+  $Role::REST::Client::VERSION = '0.12';
 }
 
 use Moose::Role;
@@ -57,6 +57,7 @@ has 'httpheaders' => (
 	traits      => ['Hash'],
 	is          => 'ro',
 	isa         => 'HashRef[Str]',
+        lazy        => 1,
 	writer      => '_set_httpheaders',
 	builder     => '_build_httpheaders',
 	initializer => '_build_httpheaders',
@@ -214,7 +215,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.11
+version 0.12
 
 =head1 SYNOPSIS
 
