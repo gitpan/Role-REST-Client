@@ -1,6 +1,5 @@
 use Test::More;
 use Test::Deep;
-use MooseX::Declare;
 use HTTP::Response;
 use HTTP::Headers;
 
@@ -14,21 +13,28 @@ use HTTP::Headers;
 		my ($self) = @_;
 		return $self->post('foo/bar/baz', {foo => 'bar'});
         }
-}
 
-my $ua_class = class {
+        sub baz {
+		my ($self) = @_;
+		return $self->post('foo/bar/baz', {foo => 'bar', bar => 'baz' });
+        }
+}
+{
+  package UAClass;
+  use Moose;
   use JSON;
   use Test::More;
+  has 'timeout' => ( is => 'ro', isa => 'Int' );
   sub request {
     my $opts = pop;
     ok(!ref($opts->{'content'}), 'content key must be a scalar value due content-type');
-    is($opts->{'content'}, 'foo=bar', 'no serialization should happen');
+    like($opts->{'content'}, qr{foo\=bar}, 'no serialization should happen');
     my $json = encode_json({ error => 'Resource not found' });
     my $headers = HTTP::Headers->new('Content-Type' => 'application/json');
     return HTTP::Response->new(404, 'Not Found', $headers, $json);
   }
-};
-my $ua = $ua_class->name->new(timeout => 5);
+}
+my $ua = UAClass->new(timeout => 5);
 my $persistent_headers = { 'Accept' => 'application/json' };
 my %testdata = (
 	server => 'http://localhost:3000',
@@ -61,6 +67,12 @@ is_deeply($obj->httpheaders, {
 $obj->reset_headers; # which would be like ->httpheaders($persistent_headers);
 is_deeply($obj->httpheaders, $persistent_headers,
   'should have at least persistent_headers');
+
+ok(!exists($obj->persistent_headers->{'X-Foo'}));
+ok($res = $obj->bar, 'got a response obj');
+ok(!exists($obj->persistent_headers->{'content-length'}));
+ok($res = $obj->baz, 'got a response obj');
+ok(!exists($obj->persistent_headers->{'content-length'}));
 
 $obj->clear_headers;
 is_deeply($obj->httpheaders, {}, 'new fresh httpheaders without persistent ones');

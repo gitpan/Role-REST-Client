@@ -1,11 +1,10 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.12';
+  $Role::REST::Client::VERSION = '0.13';
 }
 
 use Moose::Role;
 use Moose::Util::TypeConstraints;
-use HTTP::Tiny;
 use URI::Escape;
 use Try::Tiny;
 
@@ -38,6 +37,7 @@ has user_agent => (
 
 sub _build_user_agent {
 	my $self = shift;
+	require HTTP::Tiny;
 	return HTTP::Tiny->new(%{$self->clientattrs});
 }
 
@@ -82,7 +82,7 @@ sub _build_httpheaders {
 	$self->_set_httpheaders( { %{$self->persistent_headers}, %$headers });
 }
 
-sub reset_headers {my $self = shift;$self->_set_httpheaders($self->persistent_headers)}
+sub reset_headers {my $self = shift;$self->_set_httpheaders({ %{$self->persistent_headers} })}
 
 sub _rest_response_class { 'Role::REST::Client::Response' }
 
@@ -215,7 +215,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.12
+version 0.13
 
 =head1 SYNOPSIS
 

@@ -1,6 +1,6 @@
 package Role::REST::Client::Serializer;
 {
-  $Role::REST::Client::Serializer::VERSION = '0.12';
+  $Role::REST::Client::Serializer::VERSION = '0.13';
 }
 
 use Try::Tiny;
@@ -95,7 +95,7 @@ Role::REST::Client::Serializer
 
 =head1 VERSION
 
-version 0.12
+version 0.13
 
 =head1 AUTHOR
 
