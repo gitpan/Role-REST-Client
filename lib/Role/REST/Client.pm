@@ -1,6 +1,6 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.14';
+  $Role::REST::Client::VERSION = '0.15';
 }
 
 use Moose::Role;
@@ -51,7 +51,7 @@ has persistent_headers => (
 		my ( $self, $header, $old_header ) = @_;
 		# Update httpheaders if their value was initialized first
 		while (my ($key, $value) = each %$header) {
-			$self->set_header($key, $value);
+			$self->set_header($key, $value) unless $self->exist_header($key);
 		}
 	},
 	handles   => {
@@ -72,6 +72,7 @@ has httpheaders => (
 	handles     => {
 		set_header     => 'set',
 		get_header     => 'get',
+		exist_header   => 'exists',
 		has_no_headers => 'is_empty',
 		clear_headers  => 'clear',
 	},
@@ -224,7 +225,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.14
+version 0.15
 
 =head1 SYNOPSIS
 
