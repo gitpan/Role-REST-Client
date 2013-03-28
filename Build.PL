@@ -7,14 +7,22 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   "build_requires" => {
+    "Data::Serializer::JSON" => 0,
+    "Data::Serializer::XML::Simple" => 0,
+    "Data::Serializer::YAML" => 0,
     "File::Find" => 0,
     "File::Temp" => 0,
-    "JSON" => 0,
+    "HTTP::Request" => 0,
+    "HTTP::Tiny" => 0,
+    "JSON" => "2.00",
     "Module::Build" => "0.3601",
     "MooseX::Declare" => 0,
     "Test::Deep" => 0,
     "Test::More" => "0.88",
+    "XML::Simple" => 0,
+    "YAML" => 0,
     "strict" => 0,
+    "utf8" => 0,
     "warnings" => 0
   },
   "configure_requires" => {
@@ -26,14 +34,14 @@ my %module_build_args = (
     "Kaare Rasmussen <kaare at cpan dot net>"
   ],
   "dist_name" => "Role-REST-Client",
-  "dist_version" => "0.13",
+  "dist_version" => "0.14",
   "license" => "perl",
   "module_name" => "Role::REST::Client",
   "recommends" => {
     "Data::Serializer::JSON" => 0,
     "Data::Serializer::XML::Simple" => 0,
     "Data::Serializer::YAML" => 0,
-    "Http::Tiny" => 0,
+    "HTTP::Tiny" => 0,
     "JSON" => "2.00",
     "XML::Simple" => 0,
     "YAML" => 0
@@ -52,7 +60,7 @@ my %module_build_args = (
     "Moose::Util::TypeConstraints" => 0,
     "MooseX::Traits" => 0,
     "Try::Tiny" => 0,
-    "URI::Escape" => 0
+    "URI::Escape::XS" => 0
   },
   "script_files" => []
 );

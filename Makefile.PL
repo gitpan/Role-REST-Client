@@ -12,14 +12,22 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "REST Client Role",
   "AUTHOR" => "Kaare Rasmussen <kaare at cpan dot net>",
   "BUILD_REQUIRES" => {
+    "Data::Serializer::JSON" => 0,
+    "Data::Serializer::XML::Simple" => 0,
+    "Data::Serializer::YAML" => 0,
     "File::Find" => 0,
     "File::Temp" => 0,
-    "JSON" => 0,
+    "HTTP::Request" => 0,
+    "HTTP::Tiny" => 0,
+    "JSON" => "2.00",
     "Module::Build" => "0.3601",
     "MooseX::Declare" => 0,
     "Test::Deep" => 0,
     "Test::More" => "0.88",
+    "XML::Simple" => 0,
+    "YAML" => 0,
     "strict" => 0,
+    "utf8" => 0,
     "warnings" => 0
   },
   "CONFIGURE_REQUIRES" => {
@@ -43,9 +51,9 @@ my %WriteMakefileArgs = (
     "Moose::Util::TypeConstraints" => 0,
     "MooseX::Traits" => 0,
     "Try::Tiny" => 0,
-    "URI::Escape" => 0
+    "URI::Escape::XS" => 0
   },
-  "VERSION" => "0.13",
+  "VERSION" => "0.14",
   "test" => {
     "TESTS" => "t/*.t"
   }

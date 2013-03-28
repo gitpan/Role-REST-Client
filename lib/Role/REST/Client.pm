@@ -1,11 +1,11 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.13';
+  $Role::REST::Client::VERSION = '0.14';
 }
 
 use Moose::Role;
 use Moose::Util::TypeConstraints;
-use URI::Escape;
+use URI::Escape::XS 'uri_escape';
 use Try::Tiny;
 
 use Carp qw(confess);
@@ -41,11 +41,19 @@ sub _build_user_agent {
 	return HTTP::Tiny->new(%{$self->clientattrs});
 }
 
-has 'persistent_headers' => (
+has persistent_headers => (
 	traits    => ['Hash'],
 	is        => 'ro',
 	isa       => 'HashRef[Str]',
 	default   => sub { {} },
+        lazy      => 1,
+	trigger	  => sub {
+		my ( $self, $header, $old_header ) = @_;
+		# Update httpheaders if their value was initialized first
+		while (my ($key, $value) = each %$header) {
+			$self->set_header($key, $value);
+		}
+	},
 	handles   => {
 		set_persistent_header     => 'set',
 		get_persistent_header     => 'get',
@@ -53,7 +61,7 @@ has 'persistent_headers' => (
 		clear_persistent_headers  => 'clear',
 	},
 );
-has 'httpheaders' => (
+has httpheaders => (
 	traits      => ['Hash'],
 	is          => 'ro',
 	isa         => 'HashRef[Str]',
@@ -86,6 +94,9 @@ sub reset_headers {my $self = shift;$self->_set_httpheaders({ %{$self->persisten
 
 sub _rest_response_class { 'Role::REST::Client::Response' }
 
+# If the response is a hashref, we expect it to be in the format returned by
+# HTTP::Tiny->request() and convert it to an HTTP::Response object.  Otherwise,
+# pass the response through unmodified.
 sub _handle_response {
 	my ( $self, $res ) = @_;
 	if ( ref $res eq 'HASH' ) {
@@ -205,8 +216,6 @@ sub options { return shift->_request_with_body('OPTIONS', @_) }
 
 1;
 
-
-
 =pod
 
 =head1 NAME
@@ -215,7 +224,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.13
+version 0.14
 
 =head1 SYNOPSIS
 
@@ -312,29 +321,48 @@ All methods return a response object dictated by _rest_response_class. Set to L<
 
 =head2 user_agent
 
-An UA object which can do C<< ->request >> method, for instance: L<HTTP::Tiny>, L<LWP::UserAgent>, etc.
+  sub _build_user_agent { HTTP::Tiny->new }
+
+A User Agent object which has a C<< ->request >> method suitably compatible with L<HTTP::Tiny>. It should accept arguments like this: C<< $ua->request($method, $uri, $opts) >>, and needs to return a hashref as HTTP::Tiny does, or an L<HTTP::Response> object.  To set your own default, use a C<_build_user_agent> method.
 
 =head2 server
 
-Url of the REST server.
+URL of the REST server.
 
 e.g. 'http://localhost:3000'
 
 =head2 type
 
-Mime content type,
+MIME Content-Type header,
 
 e.g. application/json
 
 =head2 httpheaders
+
+  $self->set_header('Header' => 'foo', ... );
+  $self->get_header('Header-Name');
+  $self->has_no_headers;
+  $self->clear_headers;
 
 You can set any http header you like with set_header, e.g.
 $self->set_header($key, $value) but the content-type header will be overridden.
 
 =head2 persistent_headers
 
-A hashref containing headers you want to use for all requests. Set individual headers with
-set_persistent_header, clear the hashref with clear_persistent_header.
+  $self->set_persistent_header('Header' => 'foo', ... );
+  $self->get_persistent_header('Header-Name');
+  $self->has_no_persistent_headers;
+  $self->clear_persistent_headers;
+
+A hashref containing headers you want to use for all requests. Use the methods
+described above to manipulate it.
+
+To set your own defaults, override the default or call C<set_persistent_header()> in your
+C<BUILD> method.
+
+  has '+persistent_headers' => (
+    default => sub { ... },
+  );
 
 =head2 clientattrs
 
@@ -365,13 +393,12 @@ Kaare Rasmussen <kaare at cpan dot net>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2012 by Kaare Rasmussen.
+This software is copyright (c) 2013 by Kaare Rasmussen.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
 
 =cut
-
 
 __END__
 
