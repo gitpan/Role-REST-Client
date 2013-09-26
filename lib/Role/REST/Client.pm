@@ -1,35 +1,43 @@
 package Role::REST::Client;
 {
-  $Role::REST::Client::VERSION = '0.15';
+  $Role::REST::Client::VERSION = '0.16';
 }
 
-use Moose::Role;
-use Moose::Util::TypeConstraints;
+use Moo::Role;
+use MooX::HandlesVia;
+use Types::Standard qw(HashRef Str Int Enum HasMethods);
+
+use HTTP::Tiny;
+use URI::Escape;
 use URI::Escape::XS 'uri_escape';
 use Try::Tiny;
-
 use Carp qw(confess);
-use Role::REST::Client::Serializer;
-use Role::REST::Client::Response;
 use HTTP::Response;
 use HTTP::Status 'status_message';
 use HTTP::Headers;
 
-with 'MooseX::Traits';
+use Role::REST::Client::Serializer;
+use Role::REST::Client::Response;
 
 has 'server' => (
-	isa => 'Str',
+	isa => Str,
 	is  => 'rw',
 );
+
 has 'type' => (
-	isa => enum ([qw{application/json application/xml application/yaml application/x-www-form-urlencoded}]),
+	isa => Enum[qw{application/json application/xml application/yaml application/x-www-form-urlencoded}],
 	is  => 'rw',
-	default => 'application/json',
+	default => sub { 'application/json' },
 );
-has clientattrs => (isa => 'HashRef', is => 'ro', default => sub {return {} });
+
+has clientattrs => (
+	isa => HashRef,
+	is => 'ro',
+	default => sub {return {} }
+);
 
 has user_agent => (
-	isa => duck_type([qw(request)]),
+	isa => HasMethods['request'],
 	is => 'ro',
 	lazy => 1,
 	builder => '_build_user_agent',
@@ -37,23 +45,22 @@ has user_agent => (
 
 sub _build_user_agent {
 	my $self = shift;
-	require HTTP::Tiny;
-	return HTTP::Tiny->new(%{$self->clientattrs});
+	require HTTP::Thin;
+	return HTTP::Thin->new(%{$self->clientattrs});
 }
 
 has persistent_headers => (
-	traits    => ['Hash'],
-	is        => 'ro',
-	isa       => 'HashRef[Str]',
+	is        => 'lazy',
+#	isa       => HashRef[Str],
 	default   => sub { {} },
-        lazy      => 1,
-	trigger	  => sub {
+	trigger   => sub {
 		my ( $self, $header, $old_header ) = @_;
 		# Update httpheaders if their value was initialized first
 		while (my ($key, $value) = each %$header) {
 			$self->set_header($key, $value) unless $self->exist_header($key);
 		}
 	},
+	handles_via => 'Hash',
 	handles   => {
 		set_persistent_header     => 'set',
 		get_persistent_header     => 'get',
@@ -61,14 +68,12 @@ has persistent_headers => (
 		clear_persistent_headers  => 'clear',
 	},
 );
+
 has httpheaders => (
-	traits      => ['Hash'],
-	is          => 'ro',
-	isa         => 'HashRef[Str]',
-        lazy        => 1,
+	is          => 'lazy',
+	isa         => HashRef[Str],
 	writer      => '_set_httpheaders',
-	builder     => '_build_httpheaders',
-	initializer => '_build_httpheaders',
+	handles_via => 'Hash',
 	handles     => {
 		set_header     => 'set',
 		get_header     => 'get',
@@ -79,11 +84,10 @@ has httpheaders => (
 );
 
 has serializer_class => (
-	isa => 'ClassName', is => 'ro',
-	default => 'Role::REST::Client::Serializer',
+	isa => Str,
+	is => 'ro',
+	default => sub { 'Role::REST::Client::Serializer' },
 );
-
-no Moose::Util::TypeConstraints;
 
 sub _build_httpheaders {
 	my ($self, $headers) = @_;
@@ -157,12 +161,12 @@ sub _call {
 	}
 	my $res = $self->_handle_response( $self->do_request($method, $uri, \%options) );
 	$self->reset_headers unless $args->{preserve_headers};
-	# Return an error if status 5XX
+	# Return here if there was an error
 	return $self->_new_rest_response(
 		code => $res->code,
 		response => $res,
 		error => $res->message,
-        ) if $res->code > 499;
+        ) if $res->is_error;
 
 	my $deserializer_cb = sub {
 		# Try to find a serializer for the result content
@@ -177,7 +181,7 @@ sub _call {
 		code => $res->code,
 		response => $res,
 		data => $deserializer_cb,
-        );
+	);
 }
 
 sub _urlencode_data {
@@ -225,7 +229,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.15
+version 0.16
 
 =head1 SYNOPSIS
 
@@ -237,7 +241,7 @@ version 0.15
 
 		sub bar {
 			my ($self) = @_;
-			my $res = $self->post('foo/bar/baz', {foo => 'bar'});
+			my $res = $self->post('/foo/bar/baz', {foo => 'bar'});
 			my $code = $res->code;
 			my $data = $res->data;
 			return $data if $code == 200;
@@ -256,7 +260,7 @@ version 0.15
 	# controller
 	sub foo : Local {
 		my ($self, $c) = @_;
-		my $res = $c->model('MyData')->post('foo/bar/baz', {foo => 'bar'});
+		my $res = $c->model('MyData')->post('/foo/bar/baz', {foo => 'bar'});
 		my $code = $res->code;
 		my $data = $res->data;
 		...
@@ -312,7 +316,7 @@ args - the optional argument parameter can have these entries
 
 	deserializer - if you KNOW that the content-type of the response is incorrect,
 	you can supply the correct content type, like
-	my $res = $self->post('foo/bar/baz', {foo => 'bar'}, {deserializer => 'application/yaml'});
+	my $res = $self->post('/foo/bar/baz', {foo => 'bar'}, {deserializer => 'application/yaml'});
 
 	preserve_headers - set this to true if you want to keep the headers between calls
 
@@ -322,7 +326,7 @@ All methods return a response object dictated by _rest_response_class. Set to L<
 
 =head2 user_agent
 
-  sub _build_user_agent { HTTP::Tiny->new }
+  sub _build_user_agent { HTTP::Thin->new }
 
 A User Agent object which has a C<< ->request >> method suitably compatible with L<HTTP::Tiny>. It should accept arguments like this: C<< $ua->request($method, $uri, $opts) >>, and needs to return a hashref as HTTP::Tiny does, or an L<HTTP::Response> object.  To set your own default, use a C<_build_user_agent> method.
 
@@ -367,13 +371,17 @@ C<BUILD> method.
 
 =head2 clientattrs
 
-Attributes to feed the user agent object (which defaults to L<HTTP::Tiny>)
+Attributes to feed the user agent object (which defaults to L<HTTP::Thin>)
 
 e.g. {timeout => 10}
 
 =head1 AUTHOR
 
 Kaare Rasmussen, <kaare at cpan dot com>
+
+=head1 CONTRIBUTORS
+
+Matt Phillips, (cpan:MATTP) <mattp@cpan.org>
 
 =head1 BUGS
 
@@ -384,8 +392,8 @@ web interface at http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Role-REST-Client
 
 Copyright 2012 Kaare Rasmussen, all rights reserved.
 
-This library is free software; you can redistribute it and/or modify it under the same terms as 
-Perl itself, either Perl version 5.8.8 or, at your option, any later version of Perl 5 you may 
+This library is free software; you can redistribute it and/or modify it under the same terms as
+Perl itself, either Perl version 5.8.8 or, at your option, any later version of Perl 5 you may
 have available.
 
 =head1 AUTHOR

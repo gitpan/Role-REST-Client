@@ -9,10 +9,10 @@ build_requires:
   File::Find: 0
   File::Temp: 0
   HTTP::Request: 0
-  HTTP::Tiny: 0
+  HTTP::Thin: 0
   JSON: 2.00
   Module::Build: 0.3601
-  MooseX::Declare: 0
+  Moose: 0
   Test::Deep: 0
   Test::More: 0.88
   XML::Simple: 0
@@ -24,7 +24,7 @@ configure_requires:
   ExtUtils::MakeMaker: 6.30
   Module::Build: 0.3601
 dynamic_config: 0
-generated_by: 'Dist::Zilla version 4.300031, CPAN::Meta::Converter version 2.120921'
+generated_by: 'Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.131560'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -34,7 +34,7 @@ recommends:
   Data::Serializer::JSON: 0
   Data::Serializer::XML::Simple: 0
   Data::Serializer::YAML: 0
-  HTTP::Tiny: 0
+  HTTP::Thin: 0
   JSON: 2.00
   XML::Simple: 0
   YAML: 0
@@ -45,13 +45,16 @@ requires:
   HTTP::Message: 0
   HTTP::Response: 0
   HTTP::Status: 0
+  HTTP::Thin: 0
   HTTP::Tiny: 0
-  Moose: 0
-  Moose::Role: 0
-  Moose::Util::TypeConstraints: 0
-  MooseX::Traits: 0
+  Moo: 1.003000
+  Moo::Role: 0
+  MooX::HandlesVia: 0.001004
   Try::Tiny: 0
+  Type::Tiny: 0.024
+  Types::Standard: 0
+  URI::Escape: 0
   URI::Escape::XS: 0
 resources:
   repository: git://github.com/kaare/Role-REST-Client.git
-version: 0.15
+version: 0.16

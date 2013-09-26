@@ -8,25 +8,26 @@ use utf8;
 {
 	package RESTExample;
 
-	use Moose;
+	use Moo;
 	with 'Role::REST::Client';
 
 	sub bar {
 		my ($self) = @_;
-		return $self->post('foo/bar/baz', {foo => 'bar'});
+		return $self->post('/foo/bar/baz', {foo => 'bar'});
         }
 
         sub baz {
 		my ($self) = @_;
-		return $self->post('foo/bar/baz', {foo => 'bar', bar => 'baz' });
+		return $self->post('/foo/bar/baz', {foo => 'bar', bar => 'baz' });
         }
 }
 {
   package UAClass;
-  use Moose;
+
+  use Moo;
   use JSON;
   use Test::More;
-  has 'timeout' => ( is => 'ro', isa => 'Int' );
+  has 'timeout' => ( is => 'ro');
   sub request {
     my ( $self, $method, $uri, $opts ) = @_;
     ok(!ref($opts->{'content'}), 'content key must be a scalar value due content-type');
@@ -41,6 +42,7 @@ use utf8;
     return $res;
   }
 }
+
 my $ua = UAClass->new(timeout => 5);
 my $persistent_headers = { 'Accept' => 'application/json' };
 my %testdata = (
@@ -56,14 +58,12 @@ for my $item (qw/post get put delete _call httpheaders/) {
     ok($obj->can($item), "Role method $item exists");
 }
 
-is_deeply($obj->httpheaders, $persistent_headers,
-  'headers should include persistent ones since first request');
+is_deeply($obj->httpheaders, $persistent_headers, 'headers should include persistent ones since first request');
 ok(my $res = $obj->bar, 'got a response object');
-is_deeply($obj->httpheaders, $persistent_headers,
-  'after first request, it contains persistent ones');
+is_deeply($obj->httpheaders, $persistent_headers, 'after first request, it contains persistent ones');
 isa_ok($res, 'Role::REST::Client::Response');
 isa_ok($res->response, 'HTTP::Response');
-is($res->data->{'error'}, 'Resource not found', 'deserialization works');
+is($res->code, 404, 'Resource not found');
 
 $obj->set_header('X-Foo', 'foo');
 is_deeply($obj->httpheaders, {

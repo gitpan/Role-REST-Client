@@ -7,23 +7,7 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   "build_requires" => {
-    "Data::Serializer::JSON" => 0,
-    "Data::Serializer::XML::Simple" => 0,
-    "Data::Serializer::YAML" => 0,
-    "File::Find" => 0,
-    "File::Temp" => 0,
-    "HTTP::Request" => 0,
-    "HTTP::Tiny" => 0,
-    "JSON" => "2.00",
-    "Module::Build" => "0.3601",
-    "MooseX::Declare" => 0,
-    "Test::Deep" => 0,
-    "Test::More" => "0.88",
-    "XML::Simple" => 0,
-    "YAML" => 0,
-    "strict" => 0,
-    "utf8" => 0,
-    "warnings" => 0
+    "Module::Build" => "0.3601"
   },
   "configure_requires" => {
     "ExtUtils::MakeMaker" => "6.30",
@@ -34,14 +18,14 @@ my %module_build_args = (
     "Kaare Rasmussen <kaare at cpan dot net>"
   ],
   "dist_name" => "Role-REST-Client",
-  "dist_version" => "0.15",
+  "dist_version" => "0.16",
   "license" => "perl",
   "module_name" => "Role::REST::Client",
   "recommends" => {
     "Data::Serializer::JSON" => 0,
     "Data::Serializer::XML::Simple" => 0,
     "Data::Serializer::YAML" => 0,
-    "HTTP::Tiny" => 0,
+    "HTTP::Thin" => 0,
     "JSON" => "2.00",
     "XML::Simple" => 0,
     "YAML" => 0
@@ -54,17 +38,51 @@ my %module_build_args = (
     "HTTP::Message" => 0,
     "HTTP::Response" => 0,
     "HTTP::Status" => 0,
+    "HTTP::Thin" => 0,
     "HTTP::Tiny" => 0,
-    "Moose" => 0,
-    "Moose::Role" => 0,
-    "Moose::Util::TypeConstraints" => 0,
-    "MooseX::Traits" => 0,
+    "Moo" => "1.003000",
+    "Moo::Role" => 0,
+    "MooX::HandlesVia" => "0.001004",
     "Try::Tiny" => 0,
+    "Type::Tiny" => "0.024",
+    "Types::Standard" => 0,
+    "URI::Escape" => 0,
     "URI::Escape::XS" => 0
   },
-  "script_files" => []
+  "script_files" => [],
+  "test_requires" => {
+    "Data::Serializer::JSON" => 0,
+    "Data::Serializer::XML::Simple" => 0,
+    "Data::Serializer::YAML" => 0,
+    "File::Find" => 0,
+    "File::Temp" => 0,
+    "HTTP::Request" => 0,
+    "HTTP::Thin" => 0,
+    "JSON" => "2.00",
+    "Moose" => 0,
+    "Test::Deep" => 0,
+    "Test::More" => "0.88",
+    "XML::Simple" => 0,
+    "YAML" => 0,
+    "strict" => 0,
+    "utf8" => 0,
+    "warnings" => 0
+  }
 );
 
+
+unless ( eval { Module::Build->VERSION(0.4004) } ) {
+  my $tr = delete $module_build_args{test_requires};
+  my $br = $module_build_args{build_requires};
+  for my $mod ( keys %$tr ) {
+    if ( exists $br->{$mod} ) {
+      $br->{$mod} = $tr->{$mod} if $tr->{$mod} > $br->{$mod};
+    }
+    else {
+      $br->{$mod} = $tr->{$mod};
+    }
+  }
+}
 
 my $build = Module::Build->new(%module_build_args);
 

@@ -1,32 +1,33 @@
 package Role::REST::Client::Response;
 {
-  $Role::REST::Client::Response::VERSION = '0.15';
+  $Role::REST::Client::Response::VERSION = '0.16';
 }
 
-use Moose;
+use Moo;
+use MooX::HandlesVia;
+use Types::Standard qw(Str Int CodeRef InstanceOf);
 
 has 'code' => (
-	isa => 'Int',
+	isa => Int,
 	is  => 'ro',
 );
 has 'response' => (
-	isa => 'HTTP::Response',
+	isa => InstanceOf['HTTP::Response'],
 	is  => 'ro',
 );
 has 'error' => (
-	isa => 'Str',
+	isa => Str,
 	is  => 'ro',
 	predicate => 'failed',
 );
 has 'data_callback' => (
 	init_arg => 'data',
-	traits  => ['Code'],
-	isa => 'CodeRef', is  => 'ro',
+	isa => CodeRef,
+	is  => 'ro',
 	default => sub { sub { {} } },
+	handles_via => 'Code',
 	handles => { data => 'execute' },
 );
-
-__PACKAGE__->meta->make_immutable;
 
 1;
 
@@ -40,7 +41,7 @@ Role::REST::Client::Response
 
 =head1 VERSION
 
-version 0.15
+version 0.16
 
 =head1 SYNOPSIS
 
@@ -67,7 +68,7 @@ L<HTTP::Response> object. Use this if you need more information than status and 
 
 =head2 error
 
-The returned reason from L<HTTP::Tiny> where the status is 500 or higher. More detail may be provided 
+The error description returned from the user agent when the HTTP status code is 500 or higher. More detail may be found 
 by calling C<< $res->response->content >>.
 
 =head2 failed

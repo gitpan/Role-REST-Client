@@ -1,28 +1,25 @@
 package Role::REST::Client::Serializer;
 {
-  $Role::REST::Client::Serializer::VERSION = '0.15';
+  $Role::REST::Client::Serializer::VERSION = '0.16';
 }
 
 use Try::Tiny;
-use Moose;
-use Moose::Util::TypeConstraints;
-
+use Moo;
+use Types::Standard qw(Enum InstanceOf);
 use Data::Serializer::Raw;
 
 has 'type' => (
-    isa => enum ([qw{application/json application/xml application/yaml application/x-www-form-urlencoded}]),
-    is  => 'rw',
-	default => 'application/json',
+	isa => Enum[qw{application/json application/xml application/yaml application/x-www-form-urlencoded text/javascript}],
+	is  => 'rw',
+	default => sub { 'application/json' },
 );
-no Moose::Util::TypeConstraints;
+
 has 'serializer' => (
-	isa => 'Data::Serializer::Raw',
+	isa => InstanceOf['Data::Serializer::Raw'],
 	is => 'ro',
 	default => \&_set_serializer,
 	lazy => 1,
 );
-
-no Moose;
 
 our %modules = (
 	'application/json' => {
@@ -36,6 +33,9 @@ our %modules = (
 	},
 	'application/x-www-form-urlencoded' => {
 		module => 'FORM',
+	},
+	'text/javascript' => {
+	        module => 'JSON',	
 	},
 );
 
@@ -96,7 +96,7 @@ Role::REST::Client::Serializer
 
 =head1 VERSION
 
-version 0.15
+version 0.16
 
 =head1 AUTHOR
 
