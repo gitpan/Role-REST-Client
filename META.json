@@ -4,7 +4,7 @@
       "Kaare Rasmussen <kaare at cpan dot net>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.300035, CPAN::Meta::Converter version 2.131560",
+   "generated_by" : "Dist::Zilla version 5.015, CPAN::Meta::Converter version 2.120921",
    "license" : [
       "perl_5"
    ],
@@ -50,8 +50,7 @@
             "Try::Tiny" : "0",
             "Type::Tiny" : "0.024",
             "Types::Standard" : "0",
-            "URI::Escape" : "0",
-            "URI::Escape::XS" : "0"
+            "URI::Escape::XS" : "0.11"
          }
       },
       "test" : {
@@ -83,6 +82,6 @@
          "web" : "http://github.com/kaare/Role-REST-Client"
       }
    },
-   "version" : "0.16"
+   "version" : "0.17"
 }
 

@@ -1,14 +1,10 @@
 package Role::REST::Client;
-{
-  $Role::REST::Client::VERSION = '0.16';
-}
-
+$Role::REST::Client::VERSION = '0.17';
 use Moo::Role;
 use MooX::HandlesVia;
 use Types::Standard qw(HashRef Str Int Enum HasMethods);
 
 use HTTP::Tiny;
-use URI::Escape;
 use URI::Escape::XS 'uri_escape';
 use Try::Tiny;
 use Carp qw(confess);
@@ -223,13 +219,15 @@ sub options { return shift->_request_with_body('OPTIONS', @_) }
 
 =pod
 
+=encoding UTF-8
+
 =head1 NAME
 
 Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.16
+version 0.17
 
 =head1 SYNOPSIS
 
@@ -270,7 +268,7 @@ version 0.16
 
 This REST Client role makes REST connectivety easy.
 
-Role::REST::Client will handle encoding and decoding when using the four HTTP verbs.
+Role::REST::Client will handle encoding and decoding when using the HTTP verbs.
 
 	GET
 	PUT
@@ -375,26 +373,17 @@ Attributes to feed the user agent object (which defaults to L<HTTP::Thin>)
 
 e.g. {timeout => 10}
 
-=head1 AUTHOR
-
-Kaare Rasmussen, <kaare at cpan dot com>
-
 =head1 CONTRIBUTORS
 
+Breno G. de Oliveira, <garu@cpan.org>
+Mark Stosberg, <mark@stosberg.com>
 Matt Phillips, (cpan:MATTP) <mattp@cpan.org>
+Wallace Reis, <wallace@reis.me>
 
 =head1 BUGS
 
 Please report any bugs or feature requests to bug-role-rest-client at rt.cpan.org, or through the
 web interface at http://rt.cpan.org/NoAuth/ReportBug.html?Queue=Role-REST-Client.
-
-=head1 COPYRIGHT & LICENSE
-
-Copyright 2012 Kaare Rasmussen, all rights reserved.
-
-This library is free software; you can redistribute it and/or modify it under the same terms as
-Perl itself, either Perl version 5.8.8 or, at your option, any later version of Perl 5 you may
-have available.
 
 =head1 AUTHOR
 
@@ -402,7 +391,7 @@ Kaare Rasmussen <kaare at cpan dot net>
 
 =head1 COPYRIGHT AND LICENSE
 
-This software is copyright (c) 2013 by Kaare Rasmussen.
+This software is copyright (c) 2014 by Kaare Rasmussen.
 
 This is free software; you can redistribute it and/or modify it under
 the same terms as the Perl 5 programming language system itself.
