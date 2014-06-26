@@ -1,5 +1,5 @@
 package Role::REST::Client;
-$Role::REST::Client::VERSION = '0.17';
+$Role::REST::Client::VERSION = '0.18';
 use Moo::Role;
 use MooX::HandlesVia;
 use Types::Standard qw(HashRef Str Int Enum HasMethods);
@@ -156,14 +156,8 @@ sub _call {
 		$options{'headers'}{'content-length'} = length($options{'content'});
 	}
 	my $res = $self->_handle_response( $self->do_request($method, $uri, \%options) );
-	$self->reset_headers unless $args->{preserve_headers};
-	# Return here if there was an error
-	return $self->_new_rest_response(
-		code => $res->code,
-		response => $res,
-		error => $res->message,
-        ) if $res->is_error;
 
+	$self->reset_headers unless $args->{preserve_headers};
 	my $deserializer_cb = sub {
 		# Try to find a serializer for the result content
 		my $content_type = $args->{deserializer} || $res->header('Content-Type');
@@ -177,6 +171,7 @@ sub _call {
 		code => $res->code,
 		response => $res,
 		data => $deserializer_cb,
+		$res->is_error ? ( error => $res->message) : (),
 	);
 }
 
@@ -227,7 +222,7 @@ Role::REST::Client - REST Client Role
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 SYNOPSIS
 
@@ -376,8 +371,11 @@ e.g. {timeout => 10}
 =head1 CONTRIBUTORS
 
 Breno G. de Oliveira, <garu@cpan.org>
+
 Mark Stosberg, <mark@stosberg.com>
+
 Matt Phillips, (cpan:MATTP) <mattp@cpan.org>
+
 Wallace Reis, <wallace@reis.me>
 
 =head1 BUGS

@@ -1,5 +1,5 @@
 package Role::REST::Client::Serializer;
-$Role::REST::Client::Serializer::VERSION = '0.17';
+$Role::REST::Client::Serializer::VERSION = '0.18';
 use Try::Tiny;
 use Moo;
 use Types::Standard qw(Enum InstanceOf);
@@ -95,7 +95,7 @@ Role::REST::Client::Serializer
 
 =head1 VERSION
 
-version 0.17
+version 0.18
 
 =head1 AUTHOR
 
